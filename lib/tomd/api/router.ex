@@ -1,37 +1,44 @@
 defmodule Tomd.Api.Router do
   use Plug.Router
+  # require Logger
+  import Tomd.Api.ResponseHelper
 
+  defmodule User do
+    defstruct [:id, :login]
+  end
+
+
+  #  pipeline :api do
+  #  end
+  #  plug :accepts, ["text"]
+  #  plug Plug.Logger
+  # plug Plug.Parsers, parsers: [:json], json_decoder: Poison
   plug :match
   plug :dispatch
 
-  get "/" do
-    conn |> send_resp(200, "api")
-  end
-
-  get "/myip" do
-    conn.private.plug_route |> IO.inspect(label: "Conn private for myip res")
+  get "/ip" do
+    conn.private.plug_route |> IO.inspect(label: "Conn private for ip res")
     ip = conn.remote_ip |> Tuple.to_list |> Enum.join(".")
-    conn |> ok(ip, "text/plain")
+    conn |> ok_text(ip)
   end
 
-  match "/myip" do
-    # raise MethodNotXAllowedError
+  match "/ip" do
     conn |> send_resp(405, "Method not allowed")
   end
 
+  post "/" do
+    # user = conn.body_params
+    # conn |> send_resp(201, Poison.encode!(user))
+    # Plug.Adapters.Cowboy.Conn
+    body = conn |> Plug.Conn.read_body
+    body |> IO.inspect(label: "body")
+    Poison.decode(body, as: %User{}) |> IO.inspect(label: "decoded")
+    conn |> IO.inspect(label: (__MODULE__ |> to_string) <> " POST body")
+    conn |> send_resp(201, "OK")
+  end
+
   match _ do
-    # __MODULE__ |> IO.inspect
-    conn.private.plug_route |> IO.inspect(label: "Conn private")
     conn |> send_resp(404, "Not found")
   end
 
-  defp ok conn, body, ct = "text/plain" do
-    conn
-    |> put_resp_content_type(ct, "utf-8")
-    |> send_resp(200, body)
-  end
-end
-
-defmodule MethodNotAllowedError do
-  defexception message: "Method not allowed", plug_status: 405
 end
