@@ -7,8 +7,9 @@ defmodule Tomd.Plug.Fuuuuu do
 
   def call(%Plug.Conn{} = conn, _opts)
   do
-    Logger.warn "Call " <> to_string(__MODULE__)
-    conn |> Plug.Conn.send_resp(500, "Fuuuuu")
+    conn |> Plug.Conn.send_resp(500, __MODULE__
+                                     |> to_string
+                                     |> String.capitalize)
          |> Plug.Conn.halt
   end
 

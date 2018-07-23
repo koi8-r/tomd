@@ -7,6 +7,11 @@ defmodule Tomd.Router do
   plug :match
   plug :dispatch
 
+  get "/" do
+    conn |> IO.inspect
+    conn |> send_resp(200, "OK")
+  end
+
   forward "/hello", to: Tomd.HelloRouter
   forward "/sandbox/api", to: Tomd.Sandbox.Api.Router
   forward "/api/v1", to: Tomd.Api.V1.Router
